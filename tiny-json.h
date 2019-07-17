@@ -35,13 +35,20 @@ extern "C" {
 #endif
 
 #include <stddef.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <libkern/libkern.h>
 
 #define json_containerOf( ptr, type, member ) \
     ((type*)( (char*)ptr - offsetof( type, member ) ))
-
+    
+#define isdigit(c)      ((c) >= '0' && (c) <= '9')
+#define isalphadigit(c) ((c) >= 'a' && (c) <= 'f')
+#define isxdigit(c)     (isdigit(c) || isalphadigit(c))
+#define isspace(c)      ((c) == ' ' || (c) == '\t')
+    
+extern double atof(const char *s);
+    
 /** @defgroup tinyJson Tiny JSON parser.
   * @{ */
 
@@ -135,12 +142,12 @@ static inline json_t const* json_getChild( json_t const* json ) {
 static inline bool json_getBoolean( json_t const* property ) {
     return *property->u.value == 't';
 }
-
+    
 /** Get the value of a json integer property.
   * @param property A valid handler of a json object. Its type must be JSON_INTEGER.
   * @return The value stdint. */
 static inline int64_t json_getInteger( json_t const* property ) {
-    return atoll( property->u.value );
+    return strtol( property->u.value, NULL, 0 );
 }
 
 /** Get the value of a json real property.
